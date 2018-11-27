@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
 author: lou
+=======
+author: lou.com
+>>>>>>> fenzhi2
 data: 2018-11-16
  email :
  */
@@ -10,6 +14,7 @@ function Wipe(obj){
 	this._w = cas.width;
 	this._h = cas.height;
 	this.coverType = obj.coverType; //覆盖的是颜色还是图片
+<<<<<<< HEAD
     // this.color = obj.color;  // 覆盖的颜色
 	this.color=obj.color||"#666";
     this.imgUrl = obj.imgUrl;  //覆盖图
@@ -23,6 +28,20 @@ function Wipe(obj){
 	this.addEvent();
 	// 用户传递的名称
 	this.callback=wibedCallbackk;
+=======
+            //this.color = obj.color? "#666" : obj.color;  // 覆盖的颜色
+    this.color = obj.color || "#666";
+    this.imgUrl = obj.imgUrl;  //覆盖图
+    this.backImgUrl = obj.backImgUrl;  //背景图片
+	this.radius = obj.radius;  // 涂抹的半径
+	this.posX = 0;
+	this.posY = 0;
+	this.isMouseDown = false;  //鼠标的状态
+	this.callback = obj.callback;
+	this.transpercent = obj.transpercent;
+	this.drawMask();
+	this.addEvent();
+>>>>>>> fenzhi2
 }
 // 生成画布上的遮罩, 默认为颜色#666
 Wipe.prototype.drawMask = function(){
@@ -52,7 +71,11 @@ Wipe.prototype.drawT = function(x1,y1,x2,y2){
 		this.context.arc(x1,y1,this.radius,0,2*Math.PI);
 		this.context.fillStyle = "red";
 		this.context.fill();
+<<<<<<< HEAD
 		this.context.restore();		
+=======
+		this.context.restore();
+>>>>>>> fenzhi2
 	}else if(arguments.length === 4){
 		//调用的是画线功能
 		this.context.save();
@@ -91,15 +114,28 @@ Wipe.prototype.getTransparencyPercent = function(){
 Wipe.prototype.addEvent = function(){
 	var that = this;
 	//device保存设备类型，如果是移动端则为true,PC端为false
+<<<<<<< HEAD
             this.device = (/android|webos|iPhone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
 	var clickEvtName = this.device ? "touchstart" : "mousedown";
 	var moveEvtName = this.device ? "touchmove" : "mousemove";
 	var endEvtName = this.device ? "touchend" : "mouseup";
+=======
+    this.device = (/android|webos|iPhone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
+	var clickEvtName = this.device ? "touchstart" : "mousedown";
+	var moveEvtName = this.device ? "touchmove" : "mousemove";
+	var endEvtName = this.device ? "touchend" : "mouseup";
+	var	allTop = this.cas.offsetTop;
+	var allLeft = this.cas.offsetLeft;
+	var scrollTop;
+	var scrollLeft;
+	var tobj = this.cas;
+>>>>>>> fenzhi2
 	// 在canvas画布上监听自定义事件"mousedown", 调用drawpoint函数
 	this.cas.addEventListener(clickEvtName,function(evt){
 		that.isMouseDown = true;
 		var event = evt || window.event;
 		// 获取鼠标在视口的坐标, 传递参数到drawPoint
+<<<<<<< HEAD
 		that.posX = that.device ? event.touches[0].clientX : event.clientX+scrollLeft;
 		that.posY = that.device ? event.touches[0].clientY : event.clientY+scrollTop;
 		that.drawT(that.posX,that.posY);
@@ -107,6 +143,15 @@ Wipe.prototype.addEvent = function(){
 
 	// 增加监听"mousemove", 调用drawpoint函数
 	this.cas.addEventListener(moveEvtName,function(evt){
+=======
+		 scrollTop=document.documentElement.scrollTop||document.body.scrollTop;
+		 scrollLeft=document.documentElement.scrollLeft||document.body.scrollLeft;
+		that.posX = that.device ? event.touches[0].clientX-allLeft+scrollLeft: event.clientX-allLeft+scrollLeft;
+		that.posY = that.device ? event.touches[0].clientY-allTop+scrollTop: event.clientY-allTop+scrollTop;
+		that.drawT(that.posX,that.posY);
+	},false);
+            this.cas.addEventListener(moveEvtName,function(evt){
+>>>>>>> fenzhi2
 		// 判断, 当isMouseDown为true时, 才执行下面的操作
 		if ( !that.isMouseDown) {
 			return false;
@@ -114,10 +159,16 @@ Wipe.prototype.addEvent = function(){
 			var event = evt || window.event;
 			event.preventDefault();
 			// 获取鼠标在视口的坐标, 传递参数到drawPoint
+<<<<<<< HEAD
 			var scrollTop=document.documentElement.scrollTop||document.body.scrollTop;
 			var scrollLeft=document.documentElement.scrollLeft||document.body.scrollLeft;
 			var x2 = that.device ? event.touches[0].clientX : event.clientX+scrollLeft;
 			var y2 = that.device ? event.touches[0].clientY : event.clientY+scrollTop;
+=======
+			
+			var x2 = that.device ? event.touches[0].clientX-allLeft+scrollLeft : event.clientX-allLeft+scrollLeft;
+			var y2 = that.device ? event.touches[0].clientY-allTop+scrollTop : event.clientY-allTop+scrollTop;
+>>>>>>> fenzhi2
 			that.drawT(that.posX,that.posY,x2,y2);
 			// 每次的结束点变成下一次画线的开始点
 			that.posX = x2;
@@ -125,6 +176,7 @@ Wipe.prototype.addEvent = function(){
 		}
 	},false);
 
+<<<<<<< HEAD
 	this.cas.addEventListener(endEvtName,function(){
 		//还原isMouseDown 为false
 		that.isMouseDown = false;
@@ -132,10 +184,26 @@ Wipe.prototype.addEvent = function(){
 		// 调用同名的全局函数;
 		that.callback.call(window,percent);
 		if( that.getTransparencyPercent() > that.percent){
+=======
+
+	this.cas.addEventListener(endEvtName,function(){
+		//还原isMouseDown 为false
+		that.isMouseDown = false;
+		//借用外部的处理函数
+		var percent = that.getTransparencyPercent();
+		//调用同名的全局函数
+		that.callback.call(null,percent);
+		//当透明面积超过用户指定的透明面积
+		if( percent > that.transpercent){
+>>>>>>> fenzhi2
 			alert("超过了50%的面积");
 			//drawMask(context);
 			that.clearRect();
 		}		
 	},false);
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> fenzhi2
