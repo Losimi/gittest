@@ -1,144 +1,147 @@
-var canvas = document.getElementById('cas');
-var context = canvas.getContext("2d");
-var _w=canvas.width;
-var _h=canvas.height;
-var num=0;
-// 涂抹的半径
-var radius=20;
-var RX=0;
-var RY=0;
-// 鼠标的状态
-var ismouseDown=false;
-// 默认是未按下去false，按下去true
-//兼容手机各类
-var device = (/android|webos|iPhone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
-console.log(navigator.userAgent);
-console.log(device);
-var clickEvtName = device ? "touchstart" : "mousedown";
-var moveEvtName = device ? "touchmove" : "mousemove";
-var endEvtName = device ? "touchend" : "mouseup";
-// console.log(argunments);
-//生成画布上的遮罩，默认颜色#666 ;
-function drawmask(context){
-	context.fillStyle="#666";
-	context.fillRect(0,0,_w,_h);
-	context.globalCompositeOperation="destination-out";
+/*
+author: lou.com
+data: 2018-11-16
+ email :
+ */
+function Wipe(obj){
+	this.conID = obj.id;
+	this.cas = document.getElementById(this.conID);
+	this.context = cas.getContext("2d");
+	this._w = cas.width;
+	this._h = cas.height;
+	this.coverType = obj.coverType; //覆盖的是颜色还是图片
+            //this.color = obj.color? "#666" : obj.color;  // 覆盖的颜色
+    this.color = obj.color || "#666";
+    this.imgUrl = obj.imgUrl;  //覆盖图
+    this.backImgUrl = obj.backImgUrl;  //背景图片
+	this.radius = obj.radius;  // 涂抹的半径
+	this.posX = 0;
+	this.posY = 0;
+	this.isMouseDown = false;  //鼠标的状态
+	this.callback = obj.callback;
+	this.transpercent = obj.transpercent;
+	this.drawMask();
+	this.addEvent();
 }
-// function drawtong(context,RX,RY,starX,starY,endX,endY){
-// 	if (argunments.length==3) {
-// 	context.save();  
-// 	context.beginPath();
-// 	context.arc(RX,RY,radius,0,2*Math.PI);
-// 	context.fillStyle="red";
-// 	context.fill();
-// 	context.restore();
-// 	}
-// 	if (argunments.length==5) {
-// 	context.save();
-// 	context.lineCap="round";
-// 	context.lineWidth=2*radius;
-// 	context.beginPath();
-// 	context.moveTo(starX,starY);
-// 	context.lineTo(endX,endY);
-// 	context.stroke();
-// 	context.restore();	
-// 	}
-// }
-function drawPoint(context,RX,RY){
-	// console.log("实参个数"+argunments.length)
-	context.save();  
-	context.beginPath();
-	context.arc(RX,RY,radius,0,2*Math.PI);
-	context.fillStyle="red";
-	context.fill();
-	context.restore();
-}
-function drawxian(context,starX,starY,endX,endY){
-	// console.log("实参个数"+argunments.length)
-	context.save();
-	context.lineCap="round";
-	context.lineWidth=2*radius;
-	context.beginPath();
-	context.moveTo(starX,starY);
-	context.lineTo(endX,endY);
-	context.stroke();
-	context.restore();
-}
-canvas.addEventListener(clickEvtName,function(evt){
-	ismouseDown=true;
-	var event=evt||window.event;
-	//获取鼠标在视口的坐标，传递参数到drawPoint;
-	RX=device ? event.touches[0].clientX:event.clientX;
-	RY=device ? event.touches[0].clientY:event.clientY;
-	drawPoint(context,RX,RY);
-},false);
-canvas.addEventListener(moveEvtName,function(evt){
-	if (ismouseDown) {
-	event.preventDefault();	
-	var aX2=device ? event.touches[0].clientX:event.clientX;
-	var aY2=device ? event.touches[0].clientY:event.clientY;
-	drawxian(context,RX,RY,aX2,aY2);
-	//每次的结束点变成下一次开始的点。
-	RX=aX2;
-	RY=aY2;
-	}else{
-		return false;
-	}
-},false);
-// 在canvas中添加自定义监听事件"mousedown",调用drawPoint函数 
-// canvas.addEventListener("mousedown",function(evt){
-// 	ismouseDown=true;
-// 	var event=evt||window.event;
-// 	//获取鼠标在视口的坐标，传递参数到drawPoint;
-// 	RX=event.clientX;
-// 	RY=event.clientY;
-// 	drawPoint(context,RX,RY);
-// },false);
-//增加监听“mousemove”，调用drawpoint
-// canvas.addEventListener("mousemove",function(evt){
-// 	var event=evt||window.event;
-// 	// var aX=event.clientX;
-// 	// var aY=event.clientY;
-// 	// drawPoint(context,aX,aY);
-// 	if (ismouseDown==true) {	
-// 	var aX2=event.clientX;
-// 	var aY2=event.clientY;
-// 	drawxian(context,RX,RY,aX2,aY2);
-// 	//每次的结束点变成下一次开始的点。
-// 	RX=aX2;
-// 	RY=aY2;
-// 	}else{
-// 		return false;
-// 	}
-// },false);
-canvas.addEventListener(endEvtName,function(){
-	//还原ismouseDown，为false。
-	ismouseDown=false;
-	if (getTRansparencyPercent(context)>50) {
-		// alert("超过50%面积");
-		clear(context);
-	}
-},false);
-function getTRansparencyPercent(context){
-	var Imgdata = context.getImageData(0,0,_w,_h);
-	for (var i = 0; i < Imgdata.data.length; i+=4) {
-		var a =Imgdata.data[i+3];
-		if (a===0) {
-			num++;
+// 生成画布上的遮罩, 默认为颜色#666
+Wipe.prototype.drawMask = function(){
+	if ( this.coverType === "color" ) {
+		this.context.fillStyle = this.color;
+		this.context.fillRect(0,0,this._w,this._h);
+		this.context.globalCompositeOperation="destination-out";
+	}else if(this.coverType === "image" ){
+		//将imgUrl指定的图片填充画布
+		var img = new Image();
+		var that = this;
+		img.src = this.imgUrl;
+		img.onload = function(){
+			that.context.drawImage(img,0,0,img.width,img.height,0,0,that._w,that._h);
+			that.context.globalCompositeOperation="destination-out";
 		}
 	}
-	var percent=(num/(_w*_h))*100;
-	console.log("透明点的个数："+num);
-	console.log("占的面积"+Math.ceil(percent)+"%");
-	// return percent.toFixded(2);
-	return Math.round(percent);
 }
-function clear(context){
-	context.clearRect(0,0,_w,_h);
+//drawT画点和画线的函数
+//参数:如果只有两个参数，函数功能画圆，x1,y1即圆的中心坐标
+//如果传递四个参数，函数功能画线，x1,y1为起始坐标，x2,y2为结束坐标
+Wipe.prototype.drawT = function(x1,y1,x2,y2){
+	if( arguments.length === 2){
+		//调用的是画点功能
+		this.context.save();
+		this.context.beginPath();
+		this.context.arc(x1,y1,this.radius,0,2*Math.PI);
+		this.context.fillStyle = "red";
+		this.context.fill();
+		this.context.restore();
+	}else if(arguments.length === 4){
+		//调用的是画线功能
+		this.context.save();
+		this.context.lineCap = "round";
+		this.context.lineWidth = this.radius*2;
+		this.context.beginPath();
+		this.context.moveTo(x1,y1);
+		this.context.lineTo(x2,y2);
+		this.context.stroke();
+		this.context.restore();
+	}else{
+		return false;
+	}	
 }
-window.onload=function(){
-	drawmask(context);
-	drawPoint(context);	
-	drawxian(context);
-	// drawtong(context);
+// 清除画布
+Wipe.prototype.clearRect = function(){
+	this.context.clearRect(0,0,this._w,this._h);
+}
+//获取透明点占整个画布的百分比
+Wipe.prototype.getTransparencyPercent = function(){
+	var t = 0;
+	var imgData = this.context.getImageData(0,0,this._w,this._h);
+	for (var i = 0; i < imgData.data.length; i+=4) {
+		var a = imgData.data[i+3];
+		if ( a === 0 ) {
+			t++;
+		}
+	}
+	this.percent = (t/(this._w*this._h))*100;
+	console.log("透明点的个数："+t);
+	console.log("占总面积"+Math.ceil(this.percent)+"%");
+	return this.percent.toFixed(2);//截取小数点两位
+	// return Math.round(this.percent);
+}
+//事件
+Wipe.prototype.addEvent = function(){
+	var that = this;
+	//device保存设备类型，如果是移动端则为true,PC端为false
+    this.device = (/android|webos|iPhone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
+	var clickEvtName = this.device ? "touchstart" : "mousedown";
+	var moveEvtName = this.device ? "touchmove" : "mousemove";
+	var endEvtName = this.device ? "touchend" : "mouseup";
+	var	allTop = this.cas.offsetTop;
+	var allLeft = this.cas.offsetLeft;
+	var scrollTop;
+	var scrollLeft;
+	var tobj = this.cas;
+	// 在canvas画布上监听自定义事件"mousedown", 调用drawpoint函数
+	this.cas.addEventListener(clickEvtName,function(evt){
+		that.isMouseDown = true;
+		var event = evt || window.event;
+		// 获取鼠标在视口的坐标, 传递参数到drawPoint
+		 scrollTop=document.documentElement.scrollTop||document.body.scrollTop;
+		 scrollLeft=document.documentElement.scrollLeft||document.body.scrollLeft;
+		that.posX = that.device ? event.touches[0].clientX-allLeft+scrollLeft: event.clientX-allLeft+scrollLeft;
+		that.posY = that.device ? event.touches[0].clientY-allTop+scrollTop: event.clientY-allTop+scrollTop;
+		that.drawT(that.posX,that.posY);
+	},false);
+            this.cas.addEventListener(moveEvtName,function(evt){
+		// 判断, 当isMouseDown为true时, 才执行下面的操作
+		if ( !that.isMouseDown) {
+			return false;
+		}else{
+			var event = evt || window.event;
+			event.preventDefault();
+			// 获取鼠标在视口的坐标, 传递参数到drawPoint
+			
+			var x2 = that.device ? event.touches[0].clientX-allLeft+scrollLeft : event.clientX-allLeft+scrollLeft;
+			var y2 = that.device ? event.touches[0].clientY-allTop+scrollTop : event.clientY-allTop+scrollTop;
+			that.drawT(that.posX,that.posY,x2,y2);
+			// 每次的结束点变成下一次画线的开始点
+			that.posX = x2;
+			that.posY = y2;
+		}
+	},false);
+
+
+	this.cas.addEventListener(endEvtName,function(){
+		//还原isMouseDown 为false
+		that.isMouseDown = false;
+		//借用外部的处理函数
+		var percent = that.getTransparencyPercent();
+		//调用同名的全局函数
+		that.callback.call(null,percent);
+		//当透明面积超过用户指定的透明面积
+		if( percent > that.transpercent){
+			alert("超过了50%的面积");
+			//drawMask(context);
+			that.clearRect();
+		}		
+	},false);
+
 }
