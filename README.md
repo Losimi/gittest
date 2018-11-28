@@ -57,3 +57,10 @@ new wipe（wipeConfig）
 
 	}
  ```
+ 5、编写定位滚动偏移量
+ ``` 
+var	allTop = this.cas.offsetTop;
+	var allLeft = this.cas.offsetLeft;
+	var scrollTop;
+	var scrollLeft;
+ ```
