@@ -119,7 +119,6 @@ Wipe.prototype.addEvent = function(){
 			var event = evt || window.event;
 			event.preventDefault();
 			// 获取鼠标在视口的坐标, 传递参数到drawPoint
-			
 			var x2 = that.device ? event.touches[0].clientX-allLeft+scrollLeft : event.clientX-allLeft+scrollLeft;
 			var y2 = that.device ? event.touches[0].clientY-allTop+scrollTop : event.clientY-allTop+scrollTop;
 			that.drawT(that.posX,that.posY,x2,y2);

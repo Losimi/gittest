@@ -20,7 +20,7 @@
 	#cas{
 		position: absolute;
 		top: 200px;
-		left: 50%;
+		left: 10%;
 		/*border:1px solid #000;*/
 		background:url(image/wipe1.jpg) center 0 no-repeat;
 		background-size: cover;
@@ -29,7 +29,7 @@
 </head>
 <body>
 <div class="parent">
-	<canvas id="cas" width="200" height="300"></canvas>
+	<canvas id="cas" width="300" height="500"></canvas>
 </div>
 </body>
 </html>
@@ -39,10 +39,11 @@ var wipeConfjg = {
 	id:"cas",
 	coverType:"image",   //取值类型color,image
 	color:"",
+
 	imgUrl:"image/wipe2.jpg",   //前面的覆盖图
 	backImgUrl:"image/wipe1.jpg",            //背景图片
-	width:"200",                //canvas宽
-	height:"300",            //canvas高
+	width:"300",                //canvas宽
+	height:"500",            //canvas高
 	radius:"10",          //涂抹笔的半径
     transpercent:50,    //透明面积占整个画布的百分比，超出此数字显示全部画布
 	callback:wipedCallback             //用户自定义回调函数名称
